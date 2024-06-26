@@ -1,0 +1,46 @@
+pipeline {
+    agent any
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                script {
+                    // Clone the Git repository's master branch
+                    def gitRepoUrl = 'https://github.com/anshulc55/Jenkins_Upgradev3.git'
+
+                    checkout([$class: 'GitSCM', 
+                        branches: [[name: '*/master']], 
+                        userRemoteConfigs: [[url: gitRepoUrl]], 
+                        extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', noTags: false, shallow: true, depth: 1]]
+                    ])
+                }
+            }
+        }
+
+        stage('Init') {
+            steps {
+                // Build your application here (e.g., compile, package, etc.)
+            terraform init
+            }
+        }
+
+ stage('Plan') {
+            steps {
+                // Build your application here (e.g., compile, package, etc.)
+            terraform Plan
+            }
+        }
+
+ stage('Apply') {
+            steps {
+                // Build your application here (e.g., compile, package, etc.)
+            terraform apply --auto-approve
+            }
+        }
+
+ post{
+        always {
+             echo 'Prints whether deploy happened or not, success or failure'
+        }
+    }
+}
