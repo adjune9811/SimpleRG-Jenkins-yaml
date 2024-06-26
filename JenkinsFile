@@ -6,10 +6,10 @@ pipeline {
             steps {
                 script {
                     // Clone the Git repository's master branch
-                    def gitRepoUrl = 'https://github.com/anshulc55/Jenkins_Upgradev3.git'
+                    def gitRepoUrl = 'https://github.com/adjune9811/SimpleRG-Jenkins-yaml.git'
 
                     checkout([$class: 'GitSCM', 
-                        branches: [[name: '*/master']], 
+                        branches: [[name: '*/main']], 
                         userRemoteConfigs: [[url: gitRepoUrl]], 
                         extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', noTags: false, shallow: true, depth: 1]]
                     ])
@@ -19,28 +19,35 @@ pipeline {
 
         stage('Init') {
             steps {
-                // Build your application here (e.g., compile, package, etc.)
-            terraform init
+                script {
+                    // Initialize Terraform
+                    sh 'terraform init'
+                }
             }
         }
 
- stage('Plan') {
+        stage('Plan') {
             steps {
-                // Build your application here (e.g., compile, package, etc.)
-            terraform Plan
+                script {
+                    // Run Terraform plan
+                    sh 'terraform plan'
+                }
             }
         }
 
- stage('Apply') {
+        stage('Apply') {
             steps {
-                // Build your application here (e.g., compile, package, etc.)
-            terraform apply --auto-approve
+                script {
+                    // Apply Terraform changes
+                    sh 'terraform apply --auto-approve'
+                }
             }
         }
+    }
 
- post{
+    post {
         always {
-             echo 'Prints whether deploy happened or not, success or failure'
+            echo 'Prints whether deploy happened or not, success or failure'
         }
     }
 }
