@@ -2,17 +2,17 @@ pipeline {
     agent any
 
     environment {
-        ARM_CLIENT_ID = credentials('046b6aad-8d6f-480e-9fbc-6b9fdbb9b869')
-        ARM_CLIENT_SECRET = credentials('ulo8Q~QhM8XZyDFDzoRxVgAtoHXCMMYim2gZ6ccy')
-        ARM_TENANT_ID = credentials('7ee12db0-ba7e-40c4-8543-2c3c0e8ae7d6')
-        ARM_SUBSCRIPTION_ID = credentials('ec49dde3-01ff-476f-992d-5460ebb26e8d')
+        ARM_CLIENT_ID = credentials('azure-client-id')
+        ARM_CLIENT_SECRET = credentials('azure-client-secret')
+        ARM_TENANT_ID = credentials('azure-tenant-id')
+        ARM_SUBSCRIPTION_ID = credentials('azure-subscription-id')
     }
     
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    // Clone the Git repository's master branch
+                    // Clone the Git repository's main branch
                     def gitRepoUrl = 'https://github.com/adjune9811/SimpleRG-Jenkins-yaml.git'
 
                     checkout([$class: 'GitSCM', 
