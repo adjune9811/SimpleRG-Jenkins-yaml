@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        AZURE_SERVICE_PRINCIPAL_ID = Client ID
-        AZURE_SERVICE_PRINCIPAL_SECRET = Client Secret
-        AZURE_TENANT_ID = Tenant ID
-        AZURE_SUBSCRIPTION_ID = Subscription ID
+        AZURE_SERVICE_PRINCIPAL_ID = 899728ca-d79b-4b9c-a281-f0e6d4ed843a
+        AZURE_SERVICE_PRINCIPAL_SECRET = YNV8Q~DolzvwdXeHA4rsDa10UXmLmwP_NOV7sasG
+        AZURE_TENANT_ID = 7d32cc9f-0e5a-48a2-985e-2562318960c5
+        AZURE_SUBSCRIPTION_ID = 3389dd99-c9c6-47dd-b22c-9ee5e3b7c8d9
 
     }
 
