@@ -1,29 +1,49 @@
 pipeline {
     agent any
 
-    
+    environment {
+        AZURE_SERVICE_PRINCIPAL_ID = Client ID
+        AZURE_SERVICE_PRINCIPAL_SECRET = Client Secret
+        AZURE_TENANT_ID = Tenant ID
+        AZURE_SUBSCRIPTION_ID = Subscription ID
+
+    }
+
     stages {
-        stage('Checkout') {
+        stage('Initialize') {
             steps {
                 script {
-                    // Clone the Git repository's main branch
-                    def gitRepoUrl = 'https://github.com/adjune9811/SimpleRG-Jenkins-yaml.git'
-
-                    checkout([$class: 'GitSCM', 
-                        branches: [[name: '*/main']], 
-                        userRemoteConfigs: [[url: gitRepoUrl]], 
-                        extensions: [[$class: 'CleanBeforeCheckout'], [$class: 'CloneOption', noTags: false, shallow: true, depth: 1]]
-                    ])
+                    // Azure CLI login using service principal credentials and specifying subscription
+                    sh "az login --service-principal -u ${AZURE_SERVICE_PRINCIPAL_ID} -p ${AZURE_SERVICE_PRINCIPAL_SECRET} --tenant ${AZURE_TENANT_ID}"
+                    sh "az account set --subscription ${AZURE_SUBSCRIPTION_ID}"
+                    
+                    // Go to the directory where Terraform files are checked out
+                    dir('path_to_your_terraform_directory') {
+                        // Initialize Terraform
+                        sh 'terraform init'
+                    }
                 }
             }
         }
 
-        stage('Init') {
+        stage('Validate') {
             steps {
                 script {
-                                
-                    // Initialize Terraform
-                    sh 'terraform init'
+                    dir('path_to_your_terraform_directory') {
+                        // Validate Terraform configuration
+                        sh 'terraform validate'
+                    }
+                }
+            }
+        }
+
+        stage('Format') {
+            steps {
+                script {
+                    dir('path_to_your_terraform_directory') {
+                        // Format Terraform files
+                        sh 'terraform fmt -check=true'
+                    }
                 }
             }
         }
@@ -31,8 +51,10 @@ pipeline {
         stage('Plan') {
             steps {
                 script {
-                    // Run Terraform plan
-                    sh 'terraform plan'
+                    dir('path_to_your_terraform_directory') {
+                        // Generate Terraform plan
+                        sh 'terraform plan -out=tfplan'
+                    }
                 }
             }
         }
@@ -40,8 +62,10 @@ pipeline {
         stage('Apply') {
             steps {
                 script {
-                    // Apply Terraform changes
-                    sh 'terraform apply --auto-approve'
+                    dir('path_to_your_terraform_directory') {
+                        // Apply Terraform plan
+                        sh 'terraform apply -auto-approve tfplan'
+                    }
                 }
             }
         }
@@ -49,7 +73,8 @@ pipeline {
 
     post {
         always {
-            echo 'Prints whether deploy happened or not, success or failure'
+            // Cleanup steps or notifications can be added here
+            echo 'Pipeline execution completed.'
         }
     }
 }
