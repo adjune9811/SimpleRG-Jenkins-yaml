@@ -11,35 +11,27 @@ pipeline {
         stage('Initialize') {
             steps {
                 script {
-                    withCredentials([azureServicePrincipal('7d821747-f160-4c25-8bea-97340f53c371')]) {
+                    withCredentials([azureServicePrincipal('your-azure-credential-id')]) {
                         sh 'az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID'
                         sh 'az account set --subscription $AZURE_SUBSCRIPTION_ID'
                     }
                 }
-                dir('path_to_your_terraform_directory') {
-                    sh 'terraform init'
-                }
+                sh 'terraform init'
             }
         }
         stage('Validate') {
             steps {
-                dir('path_to_your_terraform_directory') {
-                    sh 'terraform validate'
-                }
+                sh 'terraform validate'
             }
         }
         stage('Format') {
             steps {
-                dir('path_to_your_terraform_directory') {
-                    sh 'terraform fmt -check=true'
-                }
+                sh 'terraform fmt -check=true'
             }
         }
         stage('Plan') {
             steps {
-                dir('path_to_your_terraform_directory') {
-                    sh 'terraform plan -out=tfplan'
-                }
+                sh 'terraform plan -out=tfplan'
             }
         }
         stage('Apply') {
@@ -49,9 +41,7 @@ pipeline {
                 }
             }
             steps {
-                dir('path_to_your_terraform_directory') {
-                    sh 'terraform apply -input=false tfplan'
-                }
+                sh 'terraform apply -input=false tfplan'
             }
         }
     }
