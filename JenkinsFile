@@ -11,7 +11,7 @@ pipeline {
         stage('Initialize') {
             steps {
                 script {
-                    withCredentials([azureServicePrincipal('your-azure-credential-id')]) {
+                    withCredentials([azureServicePrincipal('7d821747-f160-4c25-8bea-97340f53c371')]) {
                         sh 'az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID'
                         sh 'az account set --subscription $AZURE_SUBSCRIPTION_ID'
                     }
