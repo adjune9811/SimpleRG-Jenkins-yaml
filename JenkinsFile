@@ -1,8 +1,9 @@
 pipeline {
     agent any
     
-    environment {
-        AZURE_CREDENTIALS = credentials('IAC_AZURE_SECRET')
+    tools {
+        // Define Terraform tool with the name 'Terraform'
+        terraform "Terraform"
     }
     
     stages {
@@ -15,28 +16,12 @@ pipeline {
         stage('Terraform Init') {
             steps {
                 script {
-                    def tfHome = tool name: 'Terraform', type: 'hudson.plugins.terraform.TerraformTool'
-                    env.PATH = "${tfHome}:${env.PATH}"
-                    
-                    sh 'terraform init -backend-config="backend.tfvars"'
+                    // Use 'terraform' command with configured tool
+                    terraform init
                 }
             }
         }
         
-        stage('Terraform Plan') {
-            steps {
-                script {
-                    sh 'terraform plan -var-file="variables.tfvars" -out=tfplan'
-                }
-            }
-        }
-        
-        stage('Terraform Apply') {
-            steps {
-                script {
-                    sh 'terraform apply -auto-approve tfplan'
-                }
-            }
-        }
+        // Add stages for 'terraform plan' and 'terraform apply' as needed
     }
 }
