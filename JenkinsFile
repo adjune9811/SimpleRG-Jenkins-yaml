@@ -1,56 +1,42 @@
 pipeline {
     agent any
+    
+    environment {
+        AZURE_CREDENTIALS = credentials('IAC_AZURE_SECRET')
+    }
+    
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout') {
             steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/main']],
-                    userRemoteConfigs: [[url: 'https://github.com/adjune9811/SimpleRG-Jenkins-yaml.git']]
-                ])
+                checkout scm
             }
         }
-        stage('Initialize') {
+        
+        stage('Terraform Init') {
             steps {
                 script {
-                    withCredentials([azureServicePrincipal('7d821747-f160-4c25-8bea-97340f53c371')]) {
-                        sh 'az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID'
-                        sh 'az account set --subscription $AZURE_SUBSCRIPTION_ID'
-                    }
-                }
-                sh 'terraform init'
-            }
-        }
-        stage('Validate') {
-            steps {
-                sh 'terraform validate'
-            }
-        }
-        stage('Format') {
-            steps {
-                sh 'terraform fmt -check=true'
-            }
-        }
-        stage('Plan') {
-            steps {
-                sh 'terraform plan -out=tfplan'
-            }
-        }
-        stage('Apply') {
-            when {
-                expression {
-                    return currentBuild.result == null || currentBuild.result == 'SUCCESS'
+                    def tfHome = tool name: 'Terraform', type: 'hudson.plugins.terraform.TerraformTool'
+                    env.PATH = "${tfHome}:${env.PATH}"
+                    
+                    sh 'terraform init -backend-config="backend.tfvars"'
                 }
             }
+        }
+        
+        stage('Terraform Plan') {
             steps {
-                sh 'terraform apply -input=false tfplan'
+                script {
+                    sh 'terraform plan -var-file="variables.tfvars" -out=tfplan'
+                }
             }
         }
-    }
-    post {
-        always {
-            echo 'Pipeline execution completed.'
-        }
-        failure {
-            echo 'Pipeline execution failed.'
+        
+        stage('Terraform Apply') {
+            steps {
+                script {
+                    sh 'terraform apply -auto-approve tfplan'
+                }
+            }
         }
     }
 }
